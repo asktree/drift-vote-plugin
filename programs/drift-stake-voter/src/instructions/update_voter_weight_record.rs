@@ -3,6 +3,8 @@ use crate::state::*;
 use anchor_lang::prelude::*;
 use spl_governance::state::token_owner_record;
 
+const NATIVE_TOKEN_SPOT_MARKET_INDEX = 96;
+
 /// Updates VoterWeightRecord based on Realm DAO membership
 /// The membership is evaluated via a valid TokenOwnerRecord which must belong to one of the configured spl-governance instances
 ///
@@ -25,7 +27,23 @@ pub struct UpdateVoterWeightRecord<'info> {
 
     /// TokenOwnerRecord for any of the configured spl-governance instances
     /// CHECK: Owned by any of the spl-governance instances specified in registrar.governance_program_configs
-    pub token_owner_record: UncheckedAccount<'info>,
+    // pub token_owner_record: UncheckedAccount<'info>,
+
+    #[account(
+        mut,
+        constraint = spot_market.load()?.market_index == NATIVE_TOKEN_SPOT_MARKET_INDEX,
+    )]
+    pub spot_market: AccountLoader<'info, SpotMarket>,
+    #[account(
+        constraint = spot_market.load()?.insurance_fund.vault == insurance_fund_vault.key(),
+    )]
+    pub insurance_fund_vault: Account<'info, TokenAccount>,
+    #[account(
+        mut,
+        constraint = insurance_fund_stake.load()?.authority == authority.key(),
+    )]
+    pub insurance_fund_stake: AccountLoader<'info, InsuranceFundStake>,
+    pub drift_program: Program<'info, Drift>,
 }
 
 pub fn update_voter_weight_record(ctx: Context<UpdateVoterWeightRecord>) -> Result<()> {

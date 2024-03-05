@@ -5,7 +5,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-drift_voter_plugin = "HWGVLwZnTRrKp8Ex4U6oJwXriZcsXJvWCE9PZUioPksh"
+drift-stake-voter = "3o99FELvs9dNUL7eXPX913u33CRhkxLDmwZaEZ7ATP8P"
 
 [registry]
 url = "https://api.apr.dev"
