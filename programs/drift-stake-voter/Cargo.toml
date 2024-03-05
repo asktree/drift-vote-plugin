@@ -16,14 +16,13 @@ default = []
 
 [dependencies]
 arrayref = "0.3.6"
-anchor-lang = { version = "0.26.0" }
-anchor-spl = "0.26.0"
+anchor-lang = { version = "0.27.0" }
+anchor-spl = "0.27.0"
 solana-program = "1.14.7"
 spl-governance = { version = "3.1.1", features = ["no-entrypoint"] }
 spl-governance-tools=  "0.1.2"
 spl-token = { version = "3.3", features = [ "no-entrypoint" ] }
 drift = { git = "https://github.com/drift-labs/protocol-v2.git", rev = "65a4386", features = ["cpi", "mainnet-beta"], default-features = false }
-bytemuck = { version = "1.4.0" }
 
 [dev-dependencies]
 borsh = "0.9.1"
