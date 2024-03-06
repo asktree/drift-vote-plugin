@@ -11,6 +11,17 @@ pub mod tools;
 
 declare_id!("GRmVtfLq2BPeWs5EDoQoZc787VYkhdkA11k63QM1Xemz");
 
+#[macro_export]
+macro_rules! load {
+    ($account_loader:expr) => {{
+        $account_loader.load().map_err(|_| {
+            let error_code = ErrorCode::UnableToLoadAccountLoader;
+            msg!("Error {} thrown at {}:{}", error_code, file!(), line!());
+            error_code
+        })
+    }};
+}
+
 #[program]
 pub mod realm_voter {
 
