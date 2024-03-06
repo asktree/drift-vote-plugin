@@ -1,9 +1,17 @@
 use crate::error::RealmVoterError;
 use crate::state::*;
+use crate::tools::drift_tools::get_user_token_stake;
 use anchor_lang::prelude::*;
+use anchor_spl::token::TokenAccount;
+use drift::load;
+use drift::error::ErrorCode as DriftErrorCode;
+use drift::program::Drift;
+use drift::state::insurance_fund_stake::{self, InsuranceFundStake};
+use drift::state::spot_market::SpotMarket;
+use solana_sdk::clock;
 use spl_governance::state::token_owner_record;
 
-const NATIVE_TOKEN_SPOT_MARKET_INDEX = 96;
+const NATIVE_TOKEN_SPOT_MARKET_INDEX: u16 = 96;
 
 /// Updates VoterWeightRecord based on Realm DAO membership
 /// The membership is evaluated via a valid TokenOwnerRecord which must belong to one of the configured spl-governance instances
@@ -40,7 +48,7 @@ pub struct UpdateVoterWeightRecord<'info> {
     pub insurance_fund_vault: Account<'info, TokenAccount>,
     #[account(
         mut,
-        constraint = insurance_fund_stake.load()?.authority == authority.key(),
+        constraint = insurance_fund_stake.load()?.authority == voter_weight_record.governing_token_owner.key(),
     )]
     pub insurance_fund_stake: AccountLoader<'info, InsuranceFundStake>,
     pub drift_program: Program<'info, Drift>,
@@ -49,8 +57,9 @@ pub struct UpdateVoterWeightRecord<'info> {
 pub fn update_voter_weight_record(ctx: Context<UpdateVoterWeightRecord>) -> Result<()> {
     let registrar = &ctx.accounts.registrar;
     let voter_weight_record = &mut ctx.accounts.voter_weight_record;
+    let insurance_fund_stake = &mut load!(ctx.accounts.insurance_fund_stake)
 
-    let governance_program_id = ctx.accounts.token_owner_record.owner;
+    let governance_program_id = ctx.accounts.registrar.governance_program_id;
 
     // Note: We only verify a valid TokenOwnerRecord account exists for one of the configured spl-governance instances
     // The existence of the account proofs the governing_token_owner has interacted with spl-governance Realm at least once in the past
@@ -62,27 +71,15 @@ pub fn update_voter_weight_record(ctx: Context<UpdateVoterWeightRecord>) -> Resu
         return err!(RealmVoterError::GovernanceProgramNotConfigured);
     };
 
-    let token_owner_record = token_owner_record::get_token_owner_record_data(
-        governance_program_id,
-        &ctx.accounts.token_owner_record,
-    )?;
-
-    // Ensure VoterWeightRecord and TokenOwnerRecord are for the same governing_token_owner
-    require_eq!(
-        token_owner_record.governing_token_owner,
-        voter_weight_record.governing_token_owner,
-        RealmVoterError::GoverningTokenOwnerMustMatch
-    );
-
-    // Membership of the Realm the plugin is configured for is not allowed as a source of governance power
-    require_neq!(
-        token_owner_record.realm,
-        registrar.realm,
-        RealmVoterError::TokenOwnerRecordFromOwnRealmNotAllowed
+    let bingbong = get_user_token_stake(
+        insurance_fund_stake,
+        ctx.accounts.spot_market,
+        ctx.accounts.insurance_fund_vault.amount,
+        Clock::get()?.unix_timestamp,
     );
 
     // Setup voter_weight
-    voter_weight_record.voter_weight = registrar.realm_member_voter_weight;
+    voter_weight_record.voter_weight = bingbong;
 
     // Record is only valid as of the current slot
     voter_weight_record.voter_weight_expiry = Some(Clock::get()?.slot);

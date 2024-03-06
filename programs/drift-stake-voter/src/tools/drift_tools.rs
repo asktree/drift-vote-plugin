@@ -1,3 +1,4 @@
+use anchor_lang::prelude::*;
 use drift::{
     math::{
         constants::{PERCENTAGE_PRECISION_U64, QUOTE_PRECISION},
@@ -14,14 +15,14 @@ pub fn get_user_token_stake(
     now: i64,
 ) -> Result<u64> {
     if insurance_fund_stake.last_withdraw_request_shares != 0 {
-        Ok(0)
+        return Ok(0);
     }
 
     let user_stake_in_tokens = if_shares_to_vault_amount(
-        insurance_fund_stake.checked_if_shares(spot_market),
+        insurance_fund_stake.checked_if_shares(spot_market)?,
         spot_market.insurance_fund.total_shares,
-        vault_balance,
-    );
+        insurance_fund_vault_balance,
+    )?;
 
-    Ok((user_stake_in_tokens))
+    Ok(user_stake_in_tokens)
 }
