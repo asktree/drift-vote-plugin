@@ -49,22 +49,7 @@ pub mod realm_voter {
         log_version();
         instructions::update_voter_weight_record(ctx)
     }
-    pub fn configure_voter_weights(
-        ctx: Context<ConfigureVoterWeights>,
-        realm_member_voter_weight: u64,
-        max_voter_weight: u64,
-    ) -> Result<()> {
-        log_version();
-        instructions::configure_voter_weights(ctx, realm_member_voter_weight, max_voter_weight)
-    }
 
-    pub fn configure_governance_program(
-        ctx: Context<ConfigureGovernanceProgram>,
-        change_type: crate::state::CollectionItemChangeType,
-    ) -> Result<()> {
-        log_version();
-        instructions::configure_governance_program(ctx, change_type)
-    }
 }
 
 fn log_version() {

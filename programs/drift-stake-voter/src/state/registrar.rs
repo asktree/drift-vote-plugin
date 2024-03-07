@@ -1,4 +1,4 @@
-use crate::{id, state::GovernanceProgramConfig, tools::anchor::DISCRIMINATOR_SIZE};
+use crate::{id, tools::anchor::DISCRIMINATOR_SIZE};
 use anchor_lang::prelude::*;
 use borsh::{BorshDeserialize, BorshSchema, BorshSerialize};
 use solana_program::pubkey::PUBKEY_BYTES;
@@ -30,15 +30,12 @@ pub struct Registrar {
 
     pub drift_program_id: Pubkey,
 
-    /// Reserved for future upgrades
-    pub reserved: [u8; 128],
 }
 
 impl Registrar {
-    pub fn get_space(max_governance_programs: u8) -> usize {
+    pub fn get_space() -> usize {
         DISCRIMINATOR_SIZE
             + PUBKEY_BYTES * 4
-            + 128
     }
 }
 
@@ -63,14 +60,13 @@ mod test {
     #[test]
     fn test_get_space() {
         // Arrange
-        let expected_space = Registrar::get_space(3);
+        let expected_space = Registrar::get_space();
 
         let registrar = Registrar {
             governance_program_id: Pubkey::default(),
             realm: Pubkey::default(),
             governing_token_mint: Pubkey::default(),
             drift_program_id: Pubkey::default(),
-            reserved: [0; 128],
         };
 
         // Act
