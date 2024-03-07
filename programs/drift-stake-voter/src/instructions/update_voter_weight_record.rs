@@ -8,8 +8,6 @@ use drift::program::Drift;
 use drift::state::insurance_fund_stake::InsuranceFundStake;
 use drift::state::spot_market::SpotMarket;
 
-const NATIVE_TOKEN_SPOT_MARKET_INDEX: u16 = 96;
-
 /// Updates VoterWeightRecord based on Realm DAO membership
 /// The membership is evaluated via a valid TokenOwnerRecord which must belong to one of the configured spl-governance instances
 ///
@@ -39,13 +37,12 @@ pub struct UpdateVoterWeightRecord<'info> {
 
     #[account(
         mut,
-        constraint = spot_market.load()?.market_index == NATIVE_TOKEN_SPOT_MARKET_INDEX,
-        // check that this is owned by the drift program specified by the registrar
+        constraint = spot_market.load()?.market_index == registrar.spot_market_index,
+        constraint = spot_market.load()?.mint == registrar.governing_token_mint,
     )]
     pub spot_market: AccountLoader<'info, SpotMarket>,
     #[account(
-        constraint = spot_market.load()?.insurance_fund.vault == insurance_fund_vault.key(),
-        // check taht this is owned by the drift program specified by the registrar
+        constraint = spot_market.load()?.insurance_fund.vault == insurance_fund_vault.key(),        
     )]
     pub insurance_fund_vault: Account<'info, TokenAccount>,
     #[account(

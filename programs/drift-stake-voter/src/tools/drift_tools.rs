@@ -9,9 +9,20 @@ pub fn get_user_token_stake(
     insurance_fund_stake: &InsuranceFundStake,
     spot_market: &SpotMarket,
     insurance_fund_vault_balance: u64,
-    _now: i64,
+    now: i64,
 ) -> Result<u64> {
+    // small warm up period: insurance_fund_stake must be more than 5 seconds old
+    if insurance_fund_stake.last_valid_ts < now + 5 {
+        return Ok(0);
+    }
+
+    // insurance stake must fully staked
     if insurance_fund_stake.last_withdraw_request_shares != 0 {
+        return Ok(0);
+    }
+
+    // insurance fund must be configured with sufficiently unstaking_period
+    if spot_market.insurance_fund.unstaking_period < 100 {
         return Ok(0);
     }
 
