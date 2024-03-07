@@ -9,7 +9,7 @@ pub mod state;
 
 pub mod tools;
 
-declare_id!("GRmVtfLq2BPeWs5EDoQoZc787VYkhdkA11k63QM1Xemz");
+declare_id!("H5cjESgwpXoTf7szHBch17noet6DdTFCrMgHcTro5cLb");
 
 #[macro_export]
 macro_rules! load {
