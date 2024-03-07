@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
 use drift::{
     math::{
-        constants::{PERCENTAGE_PRECISION_U64, QUOTE_PRECISION},
         insurance::if_shares_to_vault_amount,
     },
     state::insurance_fund_stake::InsuranceFundStake,
@@ -12,7 +11,7 @@ pub fn get_user_token_stake(
     insurance_fund_stake: &InsuranceFundStake,
     spot_market: &SpotMarket,
     insurance_fund_vault_balance: u64,
-    now: i64,
+    _now: i64,
 ) -> Result<u64> {
     if insurance_fund_stake.last_withdraw_request_shares != 0 {
         return Ok(0);

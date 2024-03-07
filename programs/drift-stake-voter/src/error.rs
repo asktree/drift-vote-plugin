@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+use drift::error::ErrorCode as DriftErrorCode;
+
 #[error_code]
 pub enum RealmVoterError {
     #[msg("Invalid Realm Authority")]
@@ -22,4 +24,13 @@ pub enum RealmVoterError {
 
     #[msg("Governing TokenOwner must match")]
     GoverningTokenOwnerMustMatch,
+
+    #[msg("DriftError")]
+    DriftError,
+}
+
+impl From<DriftErrorCode> for RealmVoterError {
+    fn from(_: DriftErrorCode) -> Self {
+        RealmVoterError::DriftError
+    }
 }

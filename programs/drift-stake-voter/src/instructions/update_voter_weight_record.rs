@@ -1,15 +1,12 @@
+use std::ops::Deref;
 use crate::error::RealmVoterError;
 use crate::state::*;
 use crate::tools::drift_tools::get_user_token_stake;
 use anchor_lang::prelude::*;
 use anchor_spl::token::TokenAccount;
-use drift::load;
-use drift::error::ErrorCode as DriftErrorCode;
 use drift::program::Drift;
-use drift::state::insurance_fund_stake::{self, InsuranceFundStake};
+use drift::state::insurance_fund_stake::{InsuranceFundStake};
 use drift::state::spot_market::SpotMarket;
-use solana_sdk::clock;
-use spl_governance::state::token_owner_record;
 
 const NATIVE_TOKEN_SPOT_MARKET_INDEX: u16 = 96;
 
@@ -57,7 +54,7 @@ pub struct UpdateVoterWeightRecord<'info> {
 pub fn update_voter_weight_record(ctx: Context<UpdateVoterWeightRecord>) -> Result<()> {
     let registrar = &ctx.accounts.registrar;
     let voter_weight_record = &mut ctx.accounts.voter_weight_record;
-    let insurance_fund_stake = &mut load!(ctx.accounts.insurance_fund_stake)
+    let insurance_fund_stake = &mut ctx.accounts.insurance_fund_stake.load_mut()?;
 
     let governance_program_id = ctx.accounts.registrar.governance_program_id;
 
@@ -73,10 +70,10 @@ pub fn update_voter_weight_record(ctx: Context<UpdateVoterWeightRecord>) -> Resu
 
     let bingbong = get_user_token_stake(
         insurance_fund_stake,
-        ctx.accounts.spot_market,
+        ctx.accounts.spot_market.load()?.deref(),
         ctx.accounts.insurance_fund_vault.amount,
         Clock::get()?.unix_timestamp,
-    );
+    )?;
 
     // Setup voter_weight
     voter_weight_record.voter_weight = bingbong;
