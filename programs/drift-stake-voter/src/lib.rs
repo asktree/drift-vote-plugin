@@ -23,7 +23,7 @@ macro_rules! load {
 }
 
 #[program]
-pub mod realm_voter {
+pub mod drift_stake_voter {
 
     use super::*;
 
