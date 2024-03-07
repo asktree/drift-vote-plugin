@@ -16,7 +16,7 @@ pub struct CreateRegistrar<'info> {
         seeds = [b"registrar".as_ref(),realm.key().as_ref(), governing_token_mint.key().as_ref()],
         bump,
         payer = payer,
-        space = Registrar::get_space(max_governance_programs)
+        space = Registrar::get_space()
     )]
     pub registrar: Account<'info, Registrar>,
 
