@@ -1,8 +1,6 @@
 use anchor_lang::prelude::*;
 use drift::{
-    math::{
-        insurance::if_shares_to_vault_amount,
-    },
+    math::insurance::if_shares_to_vault_amount,
     state::insurance_fund_stake::InsuranceFundStake,
     state::spot_market::SpotMarket,
 };

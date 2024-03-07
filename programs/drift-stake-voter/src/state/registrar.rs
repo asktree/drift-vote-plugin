@@ -28,19 +28,7 @@ pub struct Registrar {
     /// and the actual token of the mint is not used
     pub governing_token_mint: Pubkey,
 
-    /// spl-governance instances used for governance power
-    /// Any DAO member of any DAO created using the configured spl-governances would be given 1 vote
-    /// TODO: Once we have on-chain spl-governance registry this configuration won't be needed any longer
-    pub governance_program_configs: Vec<GovernanceProgramConfig>,
-
-    /// Vote weight assigned to a member of any of the Realms from the configured spl-governances
-    pub realm_member_voter_weight: u64,
-
-    /// Max voter weight (expressed in governing_token_mint decimal units) is used to establish the theoretical Max Attendance Quorum which is then used to calculate Approval Quorum
-    /// This manual configuration is a rough estimate because it's not practical to calculate on-chain the number of all DAO members for the given spl-governance instances
-    ///
-    /// Note: This is not a security vulnerability because the plugin is inherently not secure and used only to encourage DAO usage and registration of spl-governance instances
-    pub max_voter_weight: u64,
+    pub drift_program_id: Pubkey,
 
     /// Reserved for future upgrades
     pub reserved: [u8; 128],
@@ -49,11 +37,7 @@ pub struct Registrar {
 impl Registrar {
     pub fn get_space(max_governance_programs: u8) -> usize {
         DISCRIMINATOR_SIZE
-            + PUBKEY_BYTES * 3
-            + 4
-            + max_governance_programs as usize * (PUBKEY_BYTES + 8)
-            + 8
-            + 8
+            + PUBKEY_BYTES * 4
             + 128
     }
 }
@@ -85,14 +69,8 @@ mod test {
             governance_program_id: Pubkey::default(),
             realm: Pubkey::default(),
             governing_token_mint: Pubkey::default(),
-            governance_program_configs: vec![
-                GovernanceProgramConfig::default(),
-                GovernanceProgramConfig::default(),
-                GovernanceProgramConfig::default(),
-            ],
+            drift_program_id: Pubkey::default(),
             reserved: [0; 128],
-            max_voter_weight: 100,
-            realm_member_voter_weight: 10,
         };
 
         // Act
